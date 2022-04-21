@@ -1,0 +1,42 @@
+Ansible Setup with AWX GUI in Cent0S-8 VirtualBox:
+1.	nmcli con add con-name static ifname enp0s3 autoconnect yes type ethernet ip4 192.168.0.11/24 gw4 192.168.0.1
+2.	nmcli con up static
+3.	sudo vim /etc/sysconfig/network-scripts/ifcfg-enp0s3
+ONBOOT=no
+4.	sudo vim /etc/sysconfig/selinux
+SELINUX=disabled
+5.	sudo vim /etc/resolv.conf
+nameserver 8.8.8.8
+6.	reboot
+7.	sudo dnf -y install git gcc gcc-c++ ansible nodejs gettext device-mapper-persistent-data lvm2 bzip2 python3-pip wget nano libseccomp 
+8.	sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+9.	sudo dnf -y install docker-ce
+10.	sudo dnf -y install docker-ce --allowerasing
+11.	sudo alternatives --set python /usr/bin/python3
+12.	sudo systemctl start docker
+13.	sudo systemctl enable docker
+14.	sudo pip3 install setuptools_rust wheel docker-compose
+15.	cd ~
+16.	git clone -b 17.1.0 https://github.com/ansible/awx.git
+17.	openssl rand -base64 30
+BpBphNupJj8hZ04+mQQU2MjludTSP4ocKQspaYxG - Your_Secret_Key
+18.	vim ~/awx/installer/inventory
+a)	admin_password=StrongPassword
+b)	secret_key=Paste_Your_Secret_Key_Here
+c)	pg_database=postgres
+d)	pg_password=StrongPassword
+e)	awx_alternate_dns_servers="8.8.8.8,8.8.4.4"
+f)	postgres_data_dir="/var/lib/awx/pgdocker"
+g)	docker_compose_dir="/var/lib/awx/awxcompose"
+h)	project_data_dir="/var/lib/awx/projects"
+19.	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+20. reboot
+21.	sudo ansible-playbook -i ~/awx/installer/inventory ~/awx/installer/install.yml -v
+22.	sudo docker ps
+23.	sudo firewall-cmd --zone=public --add-masquerade --permanent
+24.	sudo firewall-cmd --permanent --add-service=http
+25.	sudo firewall-cmd --permanent --add-service=https
+26.	sudo firewall-cmd --reload
+
+Open browser and go to http://192.168.0.11
+
